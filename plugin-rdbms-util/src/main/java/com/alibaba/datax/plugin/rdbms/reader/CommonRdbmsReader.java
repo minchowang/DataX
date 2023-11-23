@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -90,8 +92,9 @@ public class CommonRdbmsReader {
 
 
         public List<Configuration> split(Configuration originalConfig,
-                                         int adviceNumber) {
-            return ReaderSplitUtil.doSplit(originalConfig, adviceNumber);
+                                         int adviceNumber,
+                                         DataBaseType dataBaseType) {
+            return ReaderSplitUtil.doSplit(originalConfig, adviceNumber, dataBaseType);
         }
 
         public void post(Configuration originalConfig) {
@@ -130,6 +133,16 @@ public class CommonRdbmsReader {
             this.dataBaseType = dataBaseType;
             this.taskGroupId = taskGropuId;
             this.taskId = taskId;
+        }
+
+        private String getFullName(String fullTableName){
+            if (this.dataBaseType == DataBaseType.PostgreSQL) {
+                char separator = '"';
+                return fullTableName.replaceAll(separator + "", "");
+            } else {
+                char separator = '`';
+                return fullTableName.replaceAll(separator + "" ,"");
+            }
         }
 
         public void init(Configuration readerSliceConfig) {
@@ -188,17 +201,27 @@ public class CommonRdbmsReader {
 
                 ResultSetMetaData metaData = rs.getMetaData();
                 columnNumber = metaData.getColumnCount();
+                StringJoiner stringJoiner = new StringJoiner(",");
+                for (int i = 1; i <= columnNumber; i++) {
+                    stringJoiner.add(metaData.getColumnName(i));
+                }
 
                 //这个统计干净的result_Next时间
                 PerfRecord allResultPerfRecord = new PerfRecord(taskGroupId, taskId, PerfRecord.PHASE.RESULT_NEXT_ALL);
                 allResultPerfRecord.start();
-
+                String[] split = getFullName(table).split("\\.");
+                String schemaName = split[0];
+                String tableName = split[1];
                 long rsNextUsedTime = 0;
                 long lastTime = System.nanoTime();
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("schemaName", schemaName);
+                hashMap.put("tableName", tableName);
+                hashMap.put("columns", stringJoiner.toString());
                 while (rs.next()) {
                     rsNextUsedTime += (System.nanoTime() - lastTime);
                     this.transportOneRecord(recordSender, rs,
-                            metaData, columnNumber, mandatoryEncoding, taskPluginCollector);
+                            metaData, columnNumber, mandatoryEncoding, taskPluginCollector, hashMap);
                     lastTime = System.nanoTime();
                 }
 
@@ -224,17 +247,25 @@ public class CommonRdbmsReader {
         
         protected Record transportOneRecord(RecordSender recordSender, ResultSet rs, 
                 ResultSetMetaData metaData, int columnNumber, String mandatoryEncoding, 
-                TaskPluginCollector taskPluginCollector) {
-            Record record = buildRecord(recordSender,rs,metaData,columnNumber,mandatoryEncoding,taskPluginCollector); 
+                TaskPluginCollector taskPluginCollector, HashMap<String, String> hashMap) {
+            Record record = buildRecord(recordSender,rs,metaData,columnNumber,mandatoryEncoding,taskPluginCollector);
+            record.setMeta(hashMap);
             recordSender.sendToWriter(record);
             return record;
         }
-        protected Record buildRecord(RecordSender recordSender,ResultSet rs, ResultSetMetaData metaData, int columnNumber, String mandatoryEncoding,
-        		TaskPluginCollector taskPluginCollector) {
-        	Record record = recordSender.createRecord();
 
+        protected Record buildRecord(RecordSender recordSender, ResultSet rs, ResultSetMetaData metaData, int columnNumber, String mandatoryEncoding,
+        		TaskPluginCollector taskPluginCollector) {
+            Record record = recordSender.createRecord();
             try {
                 for (int i = 1; i <= columnNumber; i++) {
+                    if("company_id".equals(metaData.getColumnName(i))){
+                        // 结算中心company_id = 0
+                        if ("0".equals(rs.getString(i))) {
+                            record.addColumn(new StringColumn(record.getMeta().get("schemaName")));
+                            continue;
+                        }
+                    }
                     switch (metaData.getColumnType(i)) {
 
                     case Types.CHAR:

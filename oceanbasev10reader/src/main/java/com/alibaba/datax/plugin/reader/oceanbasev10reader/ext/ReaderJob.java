@@ -7,6 +7,7 @@ import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.rdbms.reader.CommonRdbmsReader;
 import com.alibaba.datax.plugin.rdbms.reader.Key;
 import com.alibaba.datax.plugin.rdbms.reader.Constant;
+import com.alibaba.datax.plugin.rdbms.util.DataBaseType;
 import com.alibaba.datax.plugin.reader.oceanbasev10reader.OceanBaseReader;
 import com.alibaba.datax.plugin.reader.oceanbasev10reader.util.ObReaderUtils;
 import com.alibaba.datax.plugin.reader.oceanbasev10reader.util.PartitionSplitUtil;
@@ -46,7 +47,7 @@ public class ReaderJob extends CommonRdbmsReader.Job {
     }
 
     @Override
-    public List<Configuration> split(Configuration originalConfig, int adviceNumber) {
+    public List<Configuration> split(Configuration originalConfig, int adviceNumber, DataBaseType dataBaseType) {
         List<Configuration> list;
         // readByPartition is lower priority than splitPk.
         // and readByPartition only works in table mode.
@@ -57,7 +58,7 @@ public class ReaderJob extends CommonRdbmsReader.Job {
             list = PartitionSplitUtil.splitByPartition(originalConfig);
         } else {
             LOG.info("try to split reader job by splitPk.");
-            list = super.split(originalConfig, adviceNumber);
+            list = super.split(originalConfig, adviceNumber, dataBaseType);
         }
 
         for (Configuration config : list) {

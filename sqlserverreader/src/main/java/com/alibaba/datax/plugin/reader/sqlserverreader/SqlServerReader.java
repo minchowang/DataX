@@ -43,7 +43,7 @@ public class SqlServerReader extends Reader {
 		@Override
 		public List<Configuration> split(int adviceNumber) {
 			return this.commonRdbmsReaderJob.split(this.originalConfig,
-					adviceNumber);
+					adviceNumber, DATABASE_TYPE);
 		}
 
 		@Override

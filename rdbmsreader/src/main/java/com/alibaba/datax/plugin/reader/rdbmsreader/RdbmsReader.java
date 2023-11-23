@@ -48,7 +48,7 @@ public class RdbmsReader extends Reader {
         @Override
         public List<Configuration> split(int adviceNumber) {
             return this.commonRdbmsReaderMaster.split(this.originalConfig,
-                    adviceNumber);
+                    adviceNumber, DATABASE_TYPE);
         }
 
         @Override

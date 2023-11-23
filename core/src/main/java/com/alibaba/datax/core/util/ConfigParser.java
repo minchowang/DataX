@@ -27,7 +27,7 @@ public final class ConfigParser {
 
         configuration.merge(
                 ConfigParser.parseCoreConfig(CoreConstant.DATAX_CONF_PATH),
-                false);
+                true);
         // todo config优化，只捕获需要的plugin
         String readerPluginName = configuration.getString(
                 CoreConstant.DATAX_JOB_CONTENT_READER_NAME);

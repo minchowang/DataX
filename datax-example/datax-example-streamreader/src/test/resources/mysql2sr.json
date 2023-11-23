@@ -1,0 +1,57 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "mysqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "4Lme3Bn0wdkRY@5qM3a2j0ISE",
+            "column": [
+              "*"
+            ],
+            "splitPk": "id",
+            "connection": [
+              {
+                "table": [
+                  "dev_demo.(ads_group|ads_keyword)"
+                ],
+                "jdbcUrl": [
+                  "jdbc:mysql://10.49.2.7:3306/dev_demo"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "starrockswriter",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "stars@rNi0oG8xHe6yeeOIplm",
+            "database": "dev_demo",
+            "table": "*",
+            "column": [
+              "*"
+            ],
+            "jdbcUrl": "jdbc:mysql://10.49.17.231:9030",
+            "loadUrl": [
+              "10.49.17.231:8030"
+            ],
+            "loadProps": {
+              "format": "csv",
+              "strip_outer_array": true,
+              "ignore_json_size": true
+            },
+            "maxBatchRows": "500000",
+            "maxBatchSize": "104857600"
+          }
+        }
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 2
+      }
+    }
+  }
+}

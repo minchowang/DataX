@@ -18,6 +18,7 @@ import com.alibaba.datax.plugin.rdbms.util.DataBaseType;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,9 +46,9 @@ public class SubCommonRdbmsReader extends CommonRdbmsReader {
 
         @Override
         protected Record transportOneRecord(RecordSender recordSender,
-                ResultSet rs, ResultSetMetaData metaData, int columnNumber,
-                String mandatoryEncoding,
-                TaskPluginCollector taskPluginCollector) {
+                                            ResultSet rs, ResultSetMetaData metaData, int columnNumber,
+                                            String mandatoryEncoding,
+                                            TaskPluginCollector taskPluginCollector, HashMap<String, String> hashMap) {
             Record record = recordSender.createRecord();
 
             try {

@@ -1,0 +1,54 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "mysqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "2HiMh4D9@IUIaHjkvB2gdnunl",
+            "column": ["*"],
+            "splitPk": "id",
+            "connection": [
+              {
+                "table": [
+                  "pb_mp_amazon_listing(_\\d+)?\\.(global_tag_relation|listing_base_info|listing_fba_extend|listing_fba_type|product_amazon|product_amazon_active|product_amazon_asin|product_amazon_asin_performance|product_amazon_first_order|product_amazon_info|product_amazon_inventory|report_product_ads_spend|report_product_volume_amount)(_\\d+)?"
+                ],
+                "jdbcUrl": [
+                  "jdbc:mysql://10.49.0.43:3306/pb_mp_amazon_listing"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "starrockswriter",
+          "parameter": {
+            "username": "root",
+            "password": "fi@nanceQwEai88*&12BeD@qazx",
+            "database": "pb_mp_amazon_listing",
+            "table": "*",
+            "column": ["*"],
+            "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
+            "loadUrl": [
+              "10.49.26.33:8030"
+            ],
+            "loadProps": {
+              "format": "csv",
+              "strip_outer_array": true,
+              "ignore_json_size": true
+            },
+
+            "maxBatchRows": "500000",
+            "maxBatchSize": "104857600"
+          }
+        }
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 1
+      }
+    }
+  }
+}

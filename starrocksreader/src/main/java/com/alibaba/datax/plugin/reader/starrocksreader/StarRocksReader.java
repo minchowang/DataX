@@ -51,7 +51,7 @@ public class StarRocksReader extends Reader {
         @Override
         public List<Configuration> split(int adviceNumber) {
             LOG.info("split() begin...");
-            List<Configuration> splitResult = this.commonRdbmsReaderJob.split(this.originalConfig, adviceNumber);
+            List<Configuration> splitResult = this.commonRdbmsReaderJob.split(this.originalConfig, adviceNumber, DATABASE_TYPE);
             /**
              * 在日志中告知用户,为什么实际datax切分跑的channel数会小于用户配置的channel数
              */

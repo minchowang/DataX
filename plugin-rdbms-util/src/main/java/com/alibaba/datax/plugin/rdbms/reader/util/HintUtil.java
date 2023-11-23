@@ -61,6 +61,8 @@ public class HintUtil {
         } catch (Exception e){
             LOG.warn("match hint exception, will not use hint", e);
         }
+        if ("\\*".equals(column)) {
+        }
         return column;
     }
 

@@ -28,7 +28,7 @@ public class ExampleConfigParser {
 
         Configuration configuration = ConfigParser.parseJobConfig(jobPath);
         configuration.merge(coreConfig(),
-                false);
+                true);
 
         Map<String, String> pluginTypeMap = new HashMap<>();
         String readerName = configuration.getString(CoreConstant.DATAX_JOB_CONTENT_READER_NAME);

@@ -68,7 +68,7 @@ public class OceanBaseReader extends Reader {
                     }
                 }
             }
-            return this.readerJob.split(this.originalConfig, adviceNumber);
+            return this.readerJob.split(this.originalConfig, adviceNumber, DataBaseType.OceanBase);
         }
 
         @Override

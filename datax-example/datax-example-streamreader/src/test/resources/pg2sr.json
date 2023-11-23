@@ -1,0 +1,54 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "postgresqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "bigtdbfvabc9@Nbr0kmlembt",
+            "column": ["*"],
+            "splitPk": "id",
+            "connection": [
+              {
+                "table": [
+                  "901378899278668800.settlement_center_financial_events_ods"
+                ],
+                "jdbcUrl": [
+                  "jdbc:postgresql://10.49.1.12:5432/sp_finance_dev"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "starrockswriter",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "stars@rNi0oG8xHe6yeeOIplm",
+            "database": "finance_data",
+            "table": "*",
+            "column": ["*"],
+            "jdbcUrl": "jdbc:mysql://10.49.17.231:9030",
+            "loadUrl": [
+              "10.49.17.231:8030"
+            ],
+            "loadProps": {
+              "format": "json",
+              "strip_outer_array": true,
+              "ignore_json_size": true
+            },
+
+            "maxBatchRows": "500000",
+            "maxBatchSize": "104857600"
+          }
+        }
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 2
+      }
+    }
+  }
+}

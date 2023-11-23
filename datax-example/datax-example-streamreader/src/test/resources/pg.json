@@ -1,0 +1,40 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "postgresqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "bigtdbfvabc9@Nbr0kmlembt",
+            "column": ["*"],
+            "splitPk": "id",
+            "connection": [
+              {
+                "table": [
+                  "\\d+.daily_profit_statis",
+                  "\\d+.settlement_center_financial_events_ods"
+                ],
+                "jdbcUrl": [
+                  "jdbc:postgresql://10.49.1.12:5432/sp_finance_dev"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "streamwriter",
+          "parameter": {
+            "encoding": "UTF-8",
+            "print": false
+          }
+        }
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 1
+      }
+    }
+  }
+}

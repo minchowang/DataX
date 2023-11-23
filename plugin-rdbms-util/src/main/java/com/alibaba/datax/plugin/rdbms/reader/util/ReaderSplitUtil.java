@@ -4,21 +4,102 @@ import com.alibaba.datax.common.constant.CommonConstant;
 import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.rdbms.reader.Constant;
 import com.alibaba.datax.plugin.rdbms.reader.Key;
+import com.alibaba.datax.plugin.rdbms.util.DBUtil;
 import com.alibaba.datax.plugin.rdbms.util.DataBaseType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public final class ReaderSplitUtil {
     private static final Logger LOG = LoggerFactory
             .getLogger(ReaderSplitUtil.class);
+    private static DataBaseType DATABASETYPE;
+
+    public static boolean validateTableIsRegex(String tableName) {
+        try {
+            Pattern.compile(tableName);
+            return true;
+        } catch (PatternSyntaxException exception) {
+            return false;
+        }
+    }
+
+    private static String repeat(char quotingChar) {
+        return new StringBuilder().append(quotingChar).append(quotingChar).toString();
+    }
+    private static String quote(String identifierPart, char quotingChar) {
+        if (identifierPart == null) {
+            return null;
+        }
+
+        if (identifierPart.isEmpty()) {
+            return new StringBuilder().append(quotingChar).append(quotingChar).toString();
+        }
+
+        if (identifierPart.charAt(0) != quotingChar && identifierPart.charAt(identifierPart.length() - 1) != quotingChar) {
+            identifierPart = identifierPart.replace(quotingChar + "", repeat(quotingChar));
+            identifierPart = quotingChar + identifierPart + quotingChar;
+        }
+
+        return identifierPart;
+    }
+    public static String queryFullTableName(String catalogName, String schemaName, String tableName){
+        StringBuilder quoted = new StringBuilder();
+
+        char quotingChar;
+        if (DATABASETYPE == DataBaseType.MySql){
+            quotingChar = '`';
+        }else if (DATABASETYPE == DataBaseType.PostgreSQL){
+            quotingChar= '"';
+        } else {
+            throw new UnsupportedOperationException("Unsupported database type: " + DATABASETYPE);
+        }
+
+        if (catalogName != null && !catalogName.isEmpty()) {
+            quoted.append(quote(catalogName, quotingChar)).append(".");
+        }
+
+        if (schemaName != null && !schemaName.isEmpty()) {
+            quoted.append(quote(schemaName, quotingChar)).append(".");
+        }
+
+        quoted.append(quote(tableName, quotingChar));
+
+        return quoted.toString();
+    }
+
+    public static String fullTableName(String catalogName, String schemaName, String tableName){
+        StringBuilder quoted = new StringBuilder();
+
+
+        if (catalogName != null && !catalogName.isEmpty()) {
+            quoted.append(catalogName).append(".");
+        }
+
+        if (schemaName != null && !schemaName.isEmpty()) {
+            quoted.append(schemaName).append(".");
+        }
+
+        quoted.append(tableName);
+
+        return quoted.toString();
+    }
 
     public static List<Configuration> doSplit(
-            Configuration originalSliceConfig, int adviceNumber) {
+            Configuration originalSliceConfig, int adviceNumber, DataBaseType dataBaseType) {
+        DATABASETYPE = dataBaseType;
         boolean isTableMode = originalSliceConfig.getBool(Constant.IS_TABLE_MODE).booleanValue();
         int eachTableShouldSplittedNumber = -1;
         if (isTableMode) {
@@ -49,10 +130,42 @@ public final class ReaderSplitUtil {
 
             Configuration tempSlice;
 
+            Connection conn = DBUtil.getConnection(DATABASETYPE, jdbcUrl, sliceConfig.getString(Key.USERNAME), sliceConfig.getString(Key.PASSWORD));
             // 说明是配置的 table 方式
             if (isTableMode) {
                 // 已在之前进行了扩展和`处理，可以直接使用
+                // 处理正则表达式
                 List<String> tables = connConf.getList(Key.TABLE, String.class);
+                tables = Collections.synchronizedList(new ArrayList<>(tables));
+                for (String table : tables) {
+                    List<String> multiTables = new ArrayList<>();
+                    boolean isRegex = validateTableIsRegex(table);
+                    if (isRegex) {
+                        DatabaseMetaData metaData = null;
+                        Pattern pattern = Pattern.compile(table);
+                        try {
+                            metaData = conn.getMetaData();
+                            ResultSet resultSet = metaData.getTables(null, null, null, new String[]{"VIEW", "TABLE"});
+                            while (resultSet.next()) {
+                                String catalogName = resultSet.getString("TABLE_CAT");
+                                String schemaName = resultSet.getString("TABLE_SCHEM");
+                                String tableName = resultSet.getString("TABLE_NAME");
+                                if (pattern.matcher((fullTableName(catalogName, schemaName, tableName))).matches()) {
+                                    multiTables.add(queryFullTableName(catalogName, schemaName, tableName));
+                                }
+                            }
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (!multiTables.isEmpty()){
+                            tables = multiTables;
+                        } else {
+                            LOG.warn("table regex {} not match any table.", table);
+                            throw new RuntimeException(String.format("table regex %s not match any table.", table));
+                        }
+                    }
+                }
+
 
                 Validate.isTrue(null != tables && !tables.isEmpty(), "您读取数据库表配置错误.");
 
@@ -106,6 +219,7 @@ public final class ReaderSplitUtil {
                 }
             }
 
+            DBUtil.closeDBResources(null, null, conn);
         }
 
         return splittedConfigs;

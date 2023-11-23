@@ -46,7 +46,7 @@ public class MysqlReader extends Reader {
 
         @Override
         public List<Configuration> split(int adviceNumber) {
-            return this.commonRdbmsReaderJob.split(this.originalConfig, adviceNumber);
+            return this.commonRdbmsReaderJob.split(this.originalConfig, adviceNumber, DATABASE_TYPE);
         }
 
         @Override

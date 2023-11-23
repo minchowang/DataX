@@ -16,4 +16,28 @@ public class StreamReader2StreamWriterTest {
         String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
         ExampleContainer.start(jobPath);
     }
+
+// com.alibaba.datax.core.transport.record.DefaultRecord
+    @Test
+    public void testPGReader2StreamWriter() {
+        String path = "/pg2sr.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
+
+
+    @Test
+    public void testMysqlReader2StreamWriter() {
+        String path = "/mysql2sr.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
+
+
+    @Test
+    public void testListingMysqlReader2StreamWriter() {
+        String path = "/listing.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
 }

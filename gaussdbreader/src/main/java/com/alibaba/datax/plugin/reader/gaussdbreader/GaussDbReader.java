@@ -36,7 +36,7 @@ public class GaussDbReader extends Reader {
 
         @Override
         public List<Configuration> split(int adviceNumber) {
-            return this.commonRdbmsReaderMaster.split(this.originalConfig, adviceNumber);
+            return this.commonRdbmsReaderMaster.split(this.originalConfig, adviceNumber, DATABASE_TYPE);
         }
 
         @Override

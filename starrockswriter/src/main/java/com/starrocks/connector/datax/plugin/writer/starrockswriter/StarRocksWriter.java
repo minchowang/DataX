@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StarRocksWriter extends Writer {
     
@@ -94,11 +96,12 @@ public class StarRocksWriter extends Writer {
         private StarRocksWriterManager writerManager;
         private StarRocksWriterOptions options;
         private StarRocksISerializer rowSerializer;
+        private boolean init = false;
 
         @Override
         public void init() {
             options = new StarRocksWriterOptions(super.getPluginJobConf());
-            if (options.isWildcardColumn()) {
+            if (options.isWildcardColumn() &&  !"*".equals(options.getTable())) {
                 Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
                 List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(), options.getTable());
                 options.setInfoCchemaColumns(columns);
@@ -115,14 +118,32 @@ public class StarRocksWriter extends Writer {
             try {
                 Record record;
                 while ((record = recordReceiver.getFromReader()) != null) {
-                    if (record.getColumnNumber() != options.getColumns().size()) {
+                    if (!init) {
+                        if (options.isWildcardColumn()) {
+                            String tableName = record.getMeta().get("tableName");
+                            String databaseName = record.getMeta().get("databaseName");
+                            String columns =  record.getMeta().get("columns");
+                            options.setDatabase(databaseName);
+                            options.setTable(tableName);
+                            // Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
+                            // List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(),  options.getTable());
+                            List<String> columnList = Arrays.stream(columns.split(",")).collect(Collectors.toList());
+                            options.setInfoCchemaColumns(columnList);
+                            // DBUtil.closeDBResources(null, null, conn);
+                        }
+                        init =true;
+                    }
+
+                    if (options.getStreamLoadFormat() == StarRocksWriterOptions.StreamLoadFormat.CSV  && record.getColumnNumber() != options.getColumns().size()) {
                         throw DataXException
                                 .asDataXException(
                                         DBUtilErrorCode.CONF_ERROR,
                                         String.format(
-                                                "Column configuration error. The number of reader columns %d and the number of writer columns %d are not equal.",
+                                                "Column configuration error. The number of reader columns %d and the number of writer columns %d are not equal. writer table is [%s] [%s]",
                                                 record.getColumnNumber(),
-                                                options.getColumns().size()));
+                                                options.getColumns().size(),
+                                                options.getDatabase(),
+                                                options.getTable()));
                     }
                     writerManager.writeRecord(rowSerializer.serialize(record));
                 }

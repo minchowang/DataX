@@ -39,7 +39,7 @@ public class ClickhouseReader extends Reader {
 
         @Override
         public List<Configuration> split(int mandatoryNumber) {
-            return this.commonRdbmsReaderMaster.split(this.jobConfig, mandatoryNumber);
+            return this.commonRdbmsReaderMaster.split(this.jobConfig, mandatoryNumber, DATABASE_TYPE);
         }
 
         @Override

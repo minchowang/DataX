@@ -91,8 +91,20 @@ public class StarRocksWriterOptions implements Serializable {
         return options.getString(KEY_DATABASE);
     }
 
+    public void setDatabase(String database) {
+        if (StringUtils.isNotBlank(database)) {
+            this.options.set(KEY_DATABASE, database);
+        }
+    }
+
     public String getTable() {
         return options.getString(KEY_TABLE);
+    }
+
+    public void setTable(String table) {
+        if (StringUtils.isNotBlank(table)) {
+            this.options.set(KEY_TABLE, table);
+        }
     }
 
     public String getUsername() {
@@ -112,7 +124,7 @@ public class StarRocksWriterOptions implements Serializable {
     }
 
     public List<String> getColumns() {
-        if (isWildcardColumn) {
+        if (isWildcardColumn && this.infoCchemaColumns != null) {
             return this.infoCchemaColumns;
         }
         return this.userSetColumns;

@@ -29,11 +29,11 @@
             <artifactId>testcontainers</artifactId>
             <version>${test.container.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba.datax</groupId>
-            <artifactId>neo4jwriter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba.datax</groupId>-->
+<!--            <artifactId>neo4jwriter</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.alibaba.datax</groupId>
             <artifactId>datax-example-streamreader</artifactId>
