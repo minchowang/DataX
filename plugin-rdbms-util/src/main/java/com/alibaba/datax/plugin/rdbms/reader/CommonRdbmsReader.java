@@ -244,12 +244,14 @@ public class CommonRdbmsReader {
         public void destroy(Configuration originalConfig) {
             // do nothing
         }
-        
+
+        private HashMap<String,String> meta;
         protected Record transportOneRecord(RecordSender recordSender, ResultSet rs, 
                 ResultSetMetaData metaData, int columnNumber, String mandatoryEncoding, 
                 TaskPluginCollector taskPluginCollector, HashMap<String, String> hashMap) {
+            meta = hashMap;
             Record record = buildRecord(recordSender,rs,metaData,columnNumber,mandatoryEncoding,taskPluginCollector);
-            record.setMeta(hashMap);
+            record.setMeta(meta);
             recordSender.sendToWriter(record);
             return record;
         }
@@ -262,7 +264,7 @@ public class CommonRdbmsReader {
                     if("company_id".equals(metaData.getColumnName(i))){
                         // 结算中心company_id = 0
                         if ("0".equals(rs.getString(i))) {
-                            record.addColumn(new StringColumn(record.getMeta().get("schemaName")));
+                            record.addColumn(new StringColumn(meta.get("schemaName")));
                             continue;
                         }
                     }
