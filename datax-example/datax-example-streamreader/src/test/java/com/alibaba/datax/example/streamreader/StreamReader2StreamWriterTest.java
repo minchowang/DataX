@@ -40,4 +40,11 @@ public class StreamReader2StreamWriterTest {
         String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
         ExampleContainer.start(jobPath);
     }
+
+    @Test
+    public void testYYPGReader2StreamWriter() {
+        String path = "/yypg2sr.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
 }

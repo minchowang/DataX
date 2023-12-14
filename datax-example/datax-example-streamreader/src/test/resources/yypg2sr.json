@@ -6,16 +6,16 @@
           "name": "postgresqlreader",
           "parameter": {
             "username": "bigdata_user",
-            "password": "bigtdbfvabc9@Nbr0kmlembt",
+            "password": "AJdbBxEDw@UP0kQq4yAJoXvge",
             "column": ["*"],
             "splitPk": "id",
             "connection": [
               {
                 "table": [
-                  "\\d+.settlement_center_financial_events_ods"
+                  "data.ad_amz_keyword_position_base_10"
                 ],
                 "jdbcUrl": [
-                  "jdbc:postgresql://10.49.1.12:5432/sp_finance_dev"
+                  "jdbc:postgresql://10.80.128.3:5432/yy_advertisement_0"
                 ]
               }
             ]
@@ -24,14 +24,16 @@
         "writer": {
           "name": "starrockswriter",
           "parameter": {
-            "username": "bigdata_user",
-            "password": "stars@rNi0oG8xHe6yeeOIplm",
-            "database": "finance_data",
+            "username": "erp_user",
+            "password": "Doris@rMo6pG8xHe6erpOICvu",
+            "database": "yy_advertisement",
             "table": "*",
             "column": ["*"],
-            "jdbcUrl": "jdbc:mysql://10.49.17.231:9030",
+            "tableRouterRegex": "^(.+)_\\\\d+$",
+            "tableRouterReplacement": "$1",
+            "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
             "loadUrl": [
-              "10.49.17.231:8030"
+              "10.49.26.33:8030"
             ],
             "loadProps": {
               "format": "csv",

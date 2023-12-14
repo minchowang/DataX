@@ -21,6 +21,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class StarRocksWriter extends Writer {
@@ -124,7 +126,23 @@ public class StarRocksWriter extends Writer {
                             String databaseName = record.getMeta().get("databaseName");
                             String columns =  record.getMeta().get("columns");
                             options.setDatabase(databaseName);
-                            options.setTable(tableName);
+                            String tableRouterRegex = options.getTableRouterRegex();
+                            if (tableRouterRegex != null) {
+                                String tableRouterReplacement = options.getTableRouterReplacement();
+                                if (tableRouterReplacement == null) {
+                                    throw new IllegalArgumentException("tableRouterReplacement is null");
+                                }
+                                Pattern pattern = Pattern.compile(tableRouterRegex);
+                                Matcher matcher = pattern.matcher(tableName);
+                                if (matcher.matches()) {
+                                    String routerTable = matcher.replaceFirst(tableRouterReplacement);
+                                    options.setTable(routerTable);
+                                } else {
+                                    throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
+                                }
+                            } else {
+                                options.setTable(tableName);
+                            }
                             // Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
                             // List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(),  options.getTable());
                             List<String> columnList = Arrays.stream(columns.split(",")).collect(Collectors.toList());

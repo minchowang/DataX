@@ -42,6 +42,8 @@ public class StarRocksWriterOptions implements Serializable {
     public static final String KEY_LOAD_URL = "loadUrl";
     public static final String KEY_FLUSH_QUEUE_LENGTH = "flushQueueLength";
     public static final String KEY_LOAD_PROPS = "loadProps";
+    public static final String KEY_TABLE_ROUTER_REGEX = "tableRouterRegex";
+    public static final String KEY_TABLE_ROUTER_REPLACEMENT = "tableRouterReplacement";
     public static final String CONNECTION_JDBC_URL = "connection[0].jdbcUrl";
     public static final String CONNECTION_TABLE_NAME = "connection[0].table[0]";
     public static final String CONNECTION_SELECTED_DATABASE = "connection[0].selectedDatabase";
@@ -109,6 +111,14 @@ public class StarRocksWriterOptions implements Serializable {
 
     public String getUsername() {
         return options.getString(KEY_USERNAME);
+    }
+
+    public String getTableRouterRegex(){
+        return options.getString(KEY_TABLE_ROUTER_REGEX);
+    }
+
+    public String getTableRouterReplacement(){
+        return options.getString(KEY_TABLE_ROUTER_REPLACEMENT);
     }
 
     public String getPassword() {
