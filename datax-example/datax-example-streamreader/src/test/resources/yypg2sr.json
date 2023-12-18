@@ -12,7 +12,7 @@
             "connection": [
               {
                 "table": [
-                  "data.ad_amz_keyword_position_base_10"
+                  "data.ad_amz_keyword_position_base_\\d+$"
                 ],
                 "jdbcUrl": [
                   "jdbc:postgresql://10.80.128.3:5432/yy_advertisement_0"
@@ -29,7 +29,7 @@
             "database": "yy_advertisement",
             "table": "*",
             "column": ["*"],
-            "tableRouterRegex": "^(.+)_\\\\d+$",
+            "tableRouterRegex": "^(.+)_\\d+$",
             "tableRouterReplacement": "$1",
             "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
             "loadUrl": [
