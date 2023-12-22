@@ -134,11 +134,26 @@ public class StarRocksWriter extends Writer {
                                 }
                                 Pattern pattern = Pattern.compile(tableRouterRegex);
                                 Matcher matcher = pattern.matcher(tableName);
-                                if (matcher.matches()) {
-                                    String routerTable = matcher.replaceFirst(tableRouterReplacement);
-                                    options.setTable(routerTable);
-                                } else {
-                                    throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
+                                StarRocksWriterOptions.MatchMode routerRegexMatchMode = options.getTableRouterRegexMatchMode();
+                                switch (routerRegexMatchMode) {
+                                    case FULL:
+                                        if (matcher.matches()) {
+                                            String routerTable = matcher.replaceFirst(tableRouterReplacement);
+                                            options.setTable(routerTable);
+                                        } else {
+                                            throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
+                                        }
+                                        break;
+                                    case PART:
+                                        if (matcher.find()){
+                                            String routerTable = matcher.replaceFirst(tableRouterReplacement);
+                                            options.setTable(routerTable);
+                                        } else {
+                                            throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
+                                        }
+                                        break;
+                                    default:
+                                        throw new IllegalArgumentException("tableRouterRegexMatchMode " + routerRegexMatchMode + " is not supported");
                                 }
                             } else {
                                 options.setTable(tableName);

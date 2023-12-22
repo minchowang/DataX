@@ -12,10 +12,10 @@
             "connection": [
               {
                 "table": [
-                  "data.ad_amz_keyword_position_base_\\d+$"
+                  "data.(ad_amz_store_order|ad_amz_br_child_asin_report|campaign_budget_record|sb_landing_page|sb_creative|creative_info|creative_material|video_upload|campaign_over_budget|keyword_report|match_target_report|negative_keyword_report_snapshot|negative_target_report_snapshot|placement_report|search_keyword_report|search_target_report|target_report|bid_record|keyword|keyword_root|negative_keyword|negative_target|search_keyword_root|target|asin_report|campaign|campaign_report|campaign_suggested_budget|portfolio|product_severity|user_campaign_view_param|ad|ad_report|adgroup|adgroup_report|merchant_listings_all|merchant_listings_rank|product_portfolio|product_portfolio_detail|product_variation|return_product_order|break_event_acos_adgroup|break_event_acos_campaign|break_event_acos_sku|sp_amz_product_operation_status|amazon_change_history|purchase_asin_report|target|ad_amz_merchant_listings_all|operation_log_record|ad_amz_product_variation|ams_sp_traffic|ams_sp_conversion|parent_tag|sub_tag|campaign_tag_relation|asin_tag_relation|keyword_tag_relation|ad_amz_store_inventory|ad_amz_return_product_order|target_bid_record|sb_share_custom_rule|sb_share_global_rule|sb_share_report|ad_amz_br_sku_report|ad_amz_product_portfolio_detail)_\\d+$,data.(ad_amz_spapi_account|ad_amz_spapi_destination|ad_amz_spapi_subscription|ad_exchange_rate|asin_aggregation_info|audience|audience_category|category|strategy_info)"
                 ],
                 "jdbcUrl": [
-                  "jdbc:postgresql://10.80.128.3:5432/yy_advertisement_0"
+                  "jdbc:postgresql://10.80.128.3:5432/yy_advertisement_1"
                 ]
               }
             ]
@@ -26,11 +26,12 @@
           "parameter": {
             "username": "erp_user",
             "password": "Doris@rMo6pG8xHe6erpOICvu",
-            "database": "yy_advertisement",
+            "database": "yy_advertisement_sr",
             "table": "*",
             "column": ["*"],
-            "tableRouterRegex": "^(.+)_\\d+$",
-            "tableRouterReplacement": "$1",
+            "tableRouterRegex": "_\\d+$",
+            "tableRouterReplacement": "",
+            "tableRouterRegexMatchMode": "part",
             "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
             "loadUrl": [
               "10.49.26.33:8030"

@@ -25,6 +25,9 @@ public class StarRocksWriterOptions implements Serializable {
     public enum StreamLoadFormat {
         CSV, JSON;
     }
+    public enum MatchMode{
+        FULL, PART;
+    }
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
@@ -43,6 +46,7 @@ public class StarRocksWriterOptions implements Serializable {
     public static final String KEY_FLUSH_QUEUE_LENGTH = "flushQueueLength";
     public static final String KEY_LOAD_PROPS = "loadProps";
     public static final String KEY_TABLE_ROUTER_REGEX = "tableRouterRegex";
+    public static final String KEY_TABLE_ROUTER_REGEX_MATCH_MODE = "tableRouterRegexMatchMode";
     public static final String KEY_TABLE_ROUTER_REPLACEMENT = "tableRouterReplacement";
     public static final String CONNECTION_JDBC_URL = "connection[0].jdbcUrl";
     public static final String CONNECTION_TABLE_NAME = "connection[0].table[0]";
@@ -182,6 +186,14 @@ public class StarRocksWriterOptions implements Serializable {
     public int getFlushQueueLength() {
         Integer len = options.getInt(KEY_FLUSH_QUEUE_LENGTH);
         return null == len ? 1 : len;
+    }
+
+    public MatchMode getTableRouterRegexMatchMode(){
+        String mode = options.getString(KEY_TABLE_ROUTER_REGEX_MATCH_MODE);
+        if (StringUtils.isBlank(mode)) {
+            return MatchMode.FULL;
+        }
+        return MatchMode.valueOf(mode.toUpperCase());
     }
 
     public StreamLoadFormat getStreamLoadFormat() {

@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -137,8 +138,9 @@ public final class ReaderSplitUtil {
                 // 处理正则表达式
                 List<String> tables = connConf.getList(Key.TABLE, String.class);
                 tables = Collections.synchronizedList(new ArrayList<>(tables));
-                for (String table : tables) {
-                    List<String> multiTables = new ArrayList<>();
+                List<String> tablesCopy = new ArrayList<>(tables);
+                List<String> multiTables = new ArrayList<>();
+                for (String table : tablesCopy) {
                     boolean isRegex = validateTableIsRegex(table);
                     if (isRegex) {
                         DatabaseMetaData metaData = null;
@@ -158,7 +160,7 @@ public final class ReaderSplitUtil {
                             throw new RuntimeException(e);
                         }
                         if (!multiTables.isEmpty()){
-                            tables = multiTables;
+                            tables.addAll(multiTables);
                         } else {
                             LOG.warn("table regex {} not match any table.", table);
                             throw new RuntimeException(String.format("table regex %s not match any table.", table));
