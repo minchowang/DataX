@@ -14,7 +14,7 @@
             "connection": [
               {
                 "table": [
-                  "dev_demo.(ads_group|ads_keyword)"
+                  "dev_demo.(concept_marketplace)"
                 ],
                 "jdbcUrl": [
                   "jdbc:mysql://10.49.2.7:3306/dev_demo"
@@ -28,7 +28,7 @@
           "parameter": {
             "username": "bigdata_user",
             "password": "stars@rNi0oG8xHe6yeeOIplm",
-            "database": "dev_demo",
+            "database": "test_erp_1",
             "table": "*",
             "column": [
               "*"
@@ -39,8 +39,8 @@
             ],
             "loadProps": {
               "format": "csv",
-              "strip_outer_array": true,
-              "ignore_json_size": true
+              "column_separator": "\\x01",
+              "row_delimiter": "\\X02"
             },
             "maxBatchRows": "500000",
             "maxBatchSize": "104857600"
@@ -50,7 +50,7 @@
     ],
     "setting": {
       "speed": {
-        "channel": 2
+        "channel": 1
       }
     }
   }

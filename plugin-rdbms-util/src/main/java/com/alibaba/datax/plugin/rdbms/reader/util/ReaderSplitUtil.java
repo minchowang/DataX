@@ -139,15 +139,27 @@ public final class ReaderSplitUtil {
                 List<String> tables = connConf.getList(Key.TABLE, String.class);
                 tables = Collections.synchronizedList(new ArrayList<>(tables));
                 List<String> tablesCopy = new ArrayList<>(tables);
-                List<String> multiTables = new ArrayList<>();
+
+                tables.clear();
                 for (String table : tablesCopy) {
+                    List<String> multiTables = new ArrayList<>();
                     boolean isRegex = validateTableIsRegex(table);
                     if (isRegex) {
                         DatabaseMetaData metaData = null;
                         Pattern pattern = Pattern.compile(table);
                         try {
+                            ResultSet resultSet;
                             metaData = conn.getMetaData();
-                            ResultSet resultSet = metaData.getTables(null, null, null, new String[]{"VIEW", "TABLE"});
+                            switch (DATABASETYPE) {
+                                case PostgreSQL:
+                                    resultSet= conn.createStatement().executeQuery("SELECT NULL AS TABLE_CAT, table_schema AS TABLE_SCHEM, table_name AS TABLE_NAME  FROM information_schema.tables");
+                                    break;
+                                case MySql:
+                                    resultSet = metaData.getTables(null, null, null, new String[]{"VIEW", "TABLE"});
+                                    break;
+                                default:
+                                    throw new UnsupportedOperationException("Unsupported database type: " + DATABASETYPE);
+                            }
                             while (resultSet.next()) {
                                 String catalogName = resultSet.getString("TABLE_CAT");
                                 String schemaName = resultSet.getString("TABLE_SCHEM");

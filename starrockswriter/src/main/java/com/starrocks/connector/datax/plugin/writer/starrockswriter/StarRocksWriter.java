@@ -146,7 +146,7 @@ public class StarRocksWriter extends Writer {
                                         break;
                                     case PART:
                                         if (matcher.find()){
-                                            String routerTable = matcher.replaceFirst(tableRouterReplacement);
+                                            String routerTable = matcher.replaceAll(tableRouterReplacement);
                                             options.setTable(routerTable);
                                         } else {
                                             throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);

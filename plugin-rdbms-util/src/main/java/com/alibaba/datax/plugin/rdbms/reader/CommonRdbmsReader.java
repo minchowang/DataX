@@ -261,13 +261,6 @@ public class CommonRdbmsReader {
             Record record = recordSender.createRecord();
             try {
                 for (int i = 1; i <= columnNumber; i++) {
-                    if("company_id".equals(metaData.getColumnName(i))){
-                        // 结算中心company_id = 0
-                        if ("0".equals(rs.getString(i))) {
-                            record.addColumn(new StringColumn(meta.get("schemaName")));
-                            continue;
-                        }
-                    }
                     switch (metaData.getColumnType(i)) {
 
                     case Types.CHAR:
@@ -323,7 +316,11 @@ public class CommonRdbmsReader {
                         break;
 
                     case Types.TIMESTAMP:
-                        record.addColumn(new DateColumn(rs.getTimestamp(i)));
+                        if (null == rs.getTimestamp(i)) {
+                            record.addColumn(new DateColumn(Timestamp.valueOf("1970-01-01 00:00:00")));
+                        } else {
+                            record.addColumn(new DateColumn(rs.getTimestamp(i)));
+                        }
                         break;
 
                     case Types.BINARY:
