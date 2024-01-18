@@ -35,14 +35,25 @@
             ],
             "loadProps": {
               "format": "csv",
-              "column_separator": "\\x01",
-              "row_delimiter": "\\x02"
+              "column_separator": "\\\\x01",
+              "row_delimiter": "\\\\x02"
             },
 
             "maxBatchRows": "500000",
             "maxBatchSize": "104857600"
           }
+        },
+        "transformer": [{
+          "name": "dx_groovy",
+          "parameter":
+          {
+            "code": "Map<String, String> meta = record.getMeta(); String columns = meta.get(\"columns\"); String[] split = columns.split(\",\"); int index = Arrays.asList(split).indexOf(\"company_id\"); String schema = meta.get(\"schemaName\"); record.setColumn(index, new StringColumn(schema)); return record;",
+            "extraPackage":[
+              "import java.util.Map;"
+            ]
+          }
         }
+        ]
       }
     ],
     "setting": {

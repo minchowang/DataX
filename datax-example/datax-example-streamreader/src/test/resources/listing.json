@@ -35,8 +35,8 @@
             ],
             "loadProps": {
               "format": "csv",
-              "strip_outer_array": true,
-              "ignore_json_size": true
+              "column_separator": "\\\\x01",
+              "row_delimiter": "\\\\x02"
             },
 
             "maxBatchRows": "500000",
@@ -47,7 +47,7 @@
     ],
     "setting": {
       "speed": {
-        "channel": 1
+        "channel": 2
       }
     }
   }

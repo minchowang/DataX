@@ -24,7 +24,14 @@
             "encoding": "UTF-8",
             "print": true
           }
+        },
+        "transformer": [{
+          "name": "dx_fillCompanyId",
+          "parameter":
+          {"columnIndex":4,
+            "paras":["3","4","****"]}
         }
+        ]
       }
     ],
     "setting": {

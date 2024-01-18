@@ -26,9 +26,20 @@
           "name": "streamwriter",
           "parameter": {
             "encoding": "UTF-8",
-            "print": false
+            "print": true
+          }
+        },
+        "transformer": [{
+          "name": "dx_groovy",
+          "parameter":
+          {
+            "code": " Map<String, String> meta = record.getMeta(); String columns = meta.get(\"columns\"); String[] split = columns.split(\",\"); int index = Arrays.asList(split).indexOf(\"company_id\"); String schema = meta.get(\"schema\"); record.setColumn(index+1, new StringColumn(schema)); return record;",
+            "extraPackage":[
+              "import java.util.Map;"
+            ]
           }
         }
+        ]
       }
     ],
     "setting": {

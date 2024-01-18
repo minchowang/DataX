@@ -311,7 +311,11 @@ public class CommonRdbmsReader {
                         if (metaData.getColumnTypeName(i).equalsIgnoreCase("year")) {
                             record.addColumn(new LongColumn(rs.getInt(i)));
                         } else {
-                            record.addColumn(new DateColumn(rs.getDate(i)));
+                            if (null == rs.getDate(i)) {
+                                record.addColumn(new DateColumn(Date.valueOf("1970-01-01")));
+                            } else {
+                                record.addColumn(new DateColumn(rs.getDate(i)));
+                            }
                         }
                         break;
 

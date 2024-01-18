@@ -107,6 +107,7 @@ public class StarRocksWriter extends Writer {
                 Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
                 List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(), options.getTable());
                 options.setInfoCchemaColumns(columns);
+                DBUtil.closeDBResources(null, null, conn);
             }
             writerManager = new StarRocksWriterManager(options);
             rowSerializer = StarRocksSerializerFactory.createSerializer(options);
@@ -119,54 +120,23 @@ public class StarRocksWriter extends Writer {
         public void startWrite(RecordReceiver recordReceiver) {
             try {
                 Record record;
-                while ((record = recordReceiver.getFromReader()) != null) {
-                    if (!init) {
-                        if (options.isWildcardColumn()) {
-                            String tableName = record.getMeta().get("tableName");
-                            String databaseName = record.getMeta().get("databaseName");
-                            String columns =  record.getMeta().get("columns");
-                            options.setDatabase(databaseName);
-                            String tableRouterRegex = options.getTableRouterRegex();
-                            if (tableRouterRegex != null) {
-                                String tableRouterReplacement = options.getTableRouterReplacement();
-                                if (tableRouterReplacement == null) {
-                                    throw new IllegalArgumentException("tableRouterReplacement is null");
-                                }
-                                Pattern pattern = Pattern.compile(tableRouterRegex);
-                                Matcher matcher = pattern.matcher(tableName);
-                                StarRocksWriterOptions.MatchMode routerRegexMatchMode = options.getTableRouterRegexMatchMode();
-                                switch (routerRegexMatchMode) {
-                                    case FULL:
-                                        if (matcher.matches()) {
-                                            String routerTable = matcher.replaceFirst(tableRouterReplacement);
-                                            options.setTable(routerTable);
-                                        } else {
-                                            throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
-                                        }
-                                        break;
-                                    case PART:
-                                        if (matcher.find()){
-                                            String routerTable = matcher.replaceAll(tableRouterReplacement);
-                                            options.setTable(routerTable);
-                                        } else {
-                                            throw new IllegalArgumentException("table name " + tableName + " does not match regex " + tableRouterRegex);
-                                        }
-                                        break;
-                                    default:
-                                        throw new IllegalArgumentException("tableRouterRegexMatchMode " + routerRegexMatchMode + " is not supported");
-                                }
-                            } else {
-                                options.setTable(tableName);
-                            }
-                            // Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
-                            // List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(),  options.getTable());
-                            List<String> columnList = Arrays.stream(columns.split(",")).collect(Collectors.toList());
-                            options.setInfoCchemaColumns(columnList);
-                            // DBUtil.closeDBResources(null, null, conn);
-                        }
-                        init =true;
-                    }
 
+                while ((record = recordReceiver.getFromReader()) != null) {
+                    if ("*".equals(options.getTable())){
+                        if (!init) {
+                            if (options.isWildcardColumn()) {
+                                String tableName = record.getMeta().get("tableName");
+                                String databaseName = record.getMeta().get("databaseName");
+                                String columns =  record.getMeta().get("columns");
+                                options.setDatabase(databaseName);
+                                options.setTable(tableName);
+                                List<String> columnList = Arrays.stream(columns.split(",")).collect(Collectors.toList());
+                                options.setInfoCchemaColumns(columnList);
+                                // DBUtil.closeDBResources(null, null, conn);
+                            }
+                            init =true;
+                        }
+                    }
                     if (options.getStreamLoadFormat() == StarRocksWriterOptions.StreamLoadFormat.CSV  && record.getColumnNumber() != options.getColumns().size()) {
                         throw DataXException
                                 .asDataXException(

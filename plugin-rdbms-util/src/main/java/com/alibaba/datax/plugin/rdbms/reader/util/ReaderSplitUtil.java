@@ -18,8 +18,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -37,6 +35,21 @@ public final class ReaderSplitUtil {
         }
     }
 
+    private static String resetName(String name){
+
+        char quotingChar;
+        if (DATABASETYPE == DataBaseType.MySql){
+            quotingChar = '`';
+        }else if (DATABASETYPE == DataBaseType.PostgreSQL){
+            quotingChar= '"';
+        } else {
+            throw new UnsupportedOperationException("Unsupported database type: " + DATABASETYPE);
+        }
+
+        name = name.replaceAll(quotingChar + "", "");
+
+        return name;
+    }
     private static String repeat(char quotingChar) {
         return new StringBuilder().append(quotingChar).append(quotingChar).toString();
     }
@@ -206,11 +219,43 @@ public final class ReaderSplitUtil {
                     for (String table : tables) {
                         tempSlice = sliceConfig.clone();
                         tempSlice.set(Key.TABLE, table);
+                        DatabaseMetaData metaData = null;
+                        String pkName = null;
+                        try {
+                            metaData = conn.getMetaData();
+                            String[] split = table.split("\\.");
+                            ResultSet pkRs = metaData.getPrimaryKeys(null, resetName(split[0]), resetName(split[1]));
+                            String defaultPK = "id";
+                            while (pkRs.next()) {
+                                pkName = pkRs.getString("COLUMN_NAME");
+                                if (defaultPK.equals(pkName)) {
+                                    break;
+                                }
+                            }
+                            if (pkName == null) {
+                                // 如果没有主键，那么就取第一个字段作为主键
+                                ResultSet columns = metaData.getColumns(null, resetName(split[0]), resetName(split[1]), null);
+                                while (columns.next()) {
+                                    String columnName = columns.getString("COLUMN_NAME");
+                                    pkName = columnName;
+                                    break;
+                                }
+                            }
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (pkName != null) {
+                            tempSlice.set(Key.SPLIT_PK, pkName);
+                            List<Configuration> splittedSlices = SingleTableSplitUtil
+                                    .splitSingleTable(tempSlice, eachTableShouldSplittedNumber);
 
-                        List<Configuration> splittedSlices = SingleTableSplitUtil
-                                .splitSingleTable(tempSlice, eachTableShouldSplittedNumber);
+                            splittedConfigs.addAll(splittedSlices);
+                        } else {
+                            String queryColumn = HintUtil.buildQueryColumn(jdbcUrl, table, column);
+                            tempSlice.set(Key.QUERY_SQL, SingleTableSplitUtil.buildQuerySql(queryColumn, table, where));
+                            splittedConfigs.add(tempSlice);
+                        }
 
-                        splittedConfigs.addAll(splittedSlices);
                     }
                 } else {
                     for (String table : tables) {

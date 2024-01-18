@@ -12,7 +12,7 @@
             "connection": [
               {
                 "table": [
-                  "data.(ad_amz_spapi_account|ad_amz_spapi_destination|ad_amz_spapi_subscription|product_category|sp_amz_product_operation_status_code|asin_aggregation_info|ad_exchange_rate|strategy_info|audience|audience_category|category)"
+                  "data.(ad_amz_br_child_asin_report|ad_amz_br_parent_asin_report|ad_amz_br_sku_report|ad_amz_br_store_report|ad_amz_store_order|product_category|sp_amz_store_order_extend|ad_amz_merchant_listings_all|ad_amz_merchant_listings_rank|ad_amz_product_variation|ad_amz_return_product_order|ad_amz_store_inventory|ad_exchange_rate|ad_report|adgroup_report|amazon_change_history|ams_sp_conversion|ams_sp_traffic|asin_report|audience|audience_category|campaign_report|category|keyword_report|keyword_root|match_target_report|placement_report|product_severity|purchased_product_report|sb_share_report|search_keyword_report|search_keyword_root|search_target_report|sp_amz_inventory_planning|sp_amz_product_operation_status|target_report)_\\d+$,data.(asin_aggregation_info|category|audience_category|audience|ad_exchange_rate|product_category)"
                 ],
                 "jdbcUrl": [
                   "jdbc:postgresql://10.80.128.3:5432/yy_advertisement_1"
@@ -26,31 +26,39 @@
           "parameter": {
             "username": "erp_user",
             "password": "Doris@rMo6pG8xHe6erpOICvu",
-            "database": "yy_advertisement_sr",
+            "database": "yy_advertisement_sr_test",
             "table": "*",
             "column": ["*"],
-            "tableRouterRegex": "(_\\d+)?",
-            "tableRouterReplacement": "",
-            "tableRouterRegexMatchMode": "part",
             "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
             "loadUrl": [
               "10.49.26.33:8030"
             ],
             "loadProps": {
               "format": "csv",
-              "column_separator": "\\x01",
-              "row_delimiter": "\\x02"
+              "column_separator": "\\\\x01",
+              "row_delimiter": "\\\\x02"
             },
 
             "maxBatchRows": "500000",
             "maxBatchSize": "104857600"
           }
+        },
+        "transformer": [{
+          "name": "dx_groovy",
+          "parameter":
+          {
+            "code": "Map<String, String> meta = record.getMeta(); String tableName = meta.get(\"tableName\");  String newTableName = tableName.replaceAll(\"_\\\\d+\\$\", \"\");meta.put(\"tableName\", newTableName);  return record;",
+            "extraPackage":[
+              "import java.util.Map;"
+            ]
+          }
         }
+        ]
       }
     ],
     "setting": {
       "speed": {
-        "channel": 1
+        "channel": 2
       }
     }
   }

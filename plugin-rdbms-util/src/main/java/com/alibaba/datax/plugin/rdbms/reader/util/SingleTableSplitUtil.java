@@ -7,6 +7,7 @@ import com.alibaba.datax.plugin.rdbms.reader.Key;
 import com.alibaba.datax.plugin.rdbms.util.*;
 import com.alibaba.fastjson2.JSON;
 
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -49,13 +50,18 @@ public class SingleTableSplitUtil {
                     configuration, adviceNum);
             // warn: mysql etc to be added...
         } else {
+            configuration.set(Key.QUERY_SQL, buildQuerySql(column, table, where));
+            if (getCount(configuration) <= 1000_0000L) {
+                // 如果切分后的表数据量小于1000万，不进行切分
+                pluginParams.add(configuration);
+                return pluginParams;
+            }
             Pair<Object, Object> minMaxPK = getPkRange(configuration);
             if (null == minMaxPK) {
                 throw DataXException.asDataXException(DBUtilErrorCode.ILLEGAL_SPLIT_PK,
                         "根据切分主键切分表失败. DataX 仅支持切分主键为一个,并且类型为整数或者字符串类型. 请尝试使用其他的切分主键或者联系 DBA 进行处理.");
             }
 
-            configuration.set(Key.QUERY_SQL, buildQuerySql(column, table, where));
             if (null == minMaxPK.getLeft() || null == minMaxPK.getRight()) {
                 // 切分后获取到的start/end 有 Null 的情况
                 pluginParams.add(configuration);
@@ -141,6 +147,59 @@ public class SingleTableSplitUtil {
         }
 
         return querySql;
+    }
+    @SuppressWarnings("resource")
+    private static long getCount(Configuration configuration) {
+        String jdbcURL = configuration.getString(Key.JDBC_URL);
+        String username = configuration.getString(Key.USERNAME);
+        String password = configuration.getString(Key.PASSWORD);
+        String table = configuration.getString(Key.TABLE);
+        long count = 0L;
+        Connection conn = DBUtil.getConnection(DATABASE_TYPE, jdbcURL, username, password);
+        if (DATABASE_TYPE == DataBaseType.MySql){
+            String countSql = String.format("SHOW TABLE STATUS LIKE '%s';", table);
+            try {
+                LOG.info("count [sql={}] is running... ", countSql);
+                ResultSet rs = DBUtil.query(conn, countSql);
+                while (rs.next()) {
+                    count =  rs.getLong(5);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                DBUtil.closeDBResources(null, null, conn);
+            }
+        } else if (DATABASE_TYPE == DataBaseType.PostgreSQL) {
+            String countSql = String.format(
+                    "SELECT reltuples::bigint FROM pg_class WHERE oid = to_regclass('%s')",
+                    table);
+            try {
+                LOG.info("count [sql={}] is running... ", countSql);
+                ResultSet rs = DBUtil.query(conn, countSql);
+                while (rs.next()) {
+                    count =  rs.getLong(1);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                DBUtil.closeDBResources(null, null, conn);
+            }
+        }
+        else {
+            String countSql = String.format("SELECT COUNT(*) FROM %s;", table);
+            try {
+                LOG.info("count [sql={}] is running... ", countSql);
+                ResultSet rs = DBUtil.query(conn, countSql);
+                while (rs.next()) {
+                    count =  rs.getLong(1);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                DBUtil.closeDBResources(null, null, conn);
+            }
+        }
+        return count;
     }
 
     @SuppressWarnings("resource")

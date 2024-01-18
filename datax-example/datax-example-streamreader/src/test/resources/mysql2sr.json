@@ -14,10 +14,10 @@
             "connection": [
               {
                 "table": [
-                  "dev_demo.(concept_marketplace)"
+                  "test_erp_4.ads_campaign"
                 ],
                 "jdbcUrl": [
-                  "jdbc:mysql://10.49.2.7:3306/dev_demo"
+                  "jdbc:mysql://10.49.2.7:3306/test_erp_4"
                 ]
               }
             ]
@@ -28,14 +28,14 @@
           "parameter": {
             "username": "bigdata_user",
             "password": "stars@rNi0oG8xHe6yeeOIplm",
-            "database": "test_erp_1",
+            "database": "test_erp_4",
             "table": "*",
             "column": [
               "*"
             ],
-            "jdbcUrl": "jdbc:mysql://10.49.17.231:9030",
+            "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
             "loadUrl": [
-              "10.49.17.231:8030"
+              "10.49.26.33:8030"
             ],
             "loadProps": {
               "format": "csv",
@@ -50,7 +50,7 @@
     ],
     "setting": {
       "speed": {
-        "channel": 1
+        "channel": 4
       }
     }
   }
