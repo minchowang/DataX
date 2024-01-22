@@ -103,12 +103,12 @@ public class StarRocksWriter extends Writer {
         @Override
         public void init() {
             options = new StarRocksWriterOptions(super.getPluginJobConf());
-            if (options.isWildcardColumn() &&  !"*".equals(options.getTable())) {
-                Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
-                List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(), options.getTable());
-                options.setInfoCchemaColumns(columns);
-                DBUtil.closeDBResources(null, null, conn);
-            }
+            // if (options.isWildcardColumn() &&  !"*".equals(options.getTable())) {
+            //     Connection conn = DBUtil.getConnection(DataBaseType.MySql, options.getJdbcUrl(), options.getUsername(), options.getPassword());
+            //     List<String> columns = StarRocksWriterUtil.getStarRocksColumns(conn, options.getDatabase(), options.getTable());
+            //     options.setInfoCchemaColumns(columns);
+            //     DBUtil.closeDBResources(null, null, conn);
+            // }
             writerManager = new StarRocksWriterManager(options);
             rowSerializer = StarRocksSerializerFactory.createSerializer(options);
         }
@@ -136,6 +136,13 @@ public class StarRocksWriter extends Writer {
                             }
                             init =true;
                         }
+                    } else if (options.isWildcardColumn()) { // 如果表不是*，但是配置了列通配符，那么获取上游reader的列
+                        if (!init) {
+                            String columns =  record.getMeta().get("columns");
+                            List<String> columnList = Arrays.stream(columns.split(",")).collect(Collectors.toList());
+                            options.setInfoCchemaColumns(columnList);
+                        }
+                        init =true;
                     }
                     if (options.getStreamLoadFormat() == StarRocksWriterOptions.StreamLoadFormat.CSV  && record.getColumnNumber() != options.getColumns().size()) {
                         throw DataXException
