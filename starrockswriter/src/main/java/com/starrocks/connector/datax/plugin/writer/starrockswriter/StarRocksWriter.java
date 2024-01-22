@@ -142,11 +142,13 @@ public class StarRocksWriter extends Writer {
                                 .asDataXException(
                                         DBUtilErrorCode.CONF_ERROR,
                                         String.format(
-                                                "Column configuration error. The number of reader columns %d and the number of writer columns %d are not equal. writer table is [%s] [%s]",
+                                                "Column configuration error. The number of reader columns %d and the number of writer columns %d are not equal. writer table is [%s] [%s], read columns[%s] write columns[%s]",
                                                 record.getColumnNumber(),
                                                 options.getColumns().size(),
                                                 options.getDatabase(),
-                                                options.getTable()));
+                                                options.getTable(),
+                                                record.getMeta().get("columns"),
+                                                String.join(",", options.getColumns())));
                     }
                     writerManager.writeRecord(rowSerializer.serialize(record));
                 }
