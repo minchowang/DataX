@@ -156,9 +156,10 @@ public final class OriginalConfPretreatmentUtil {
                     String tableName = originalConfig.getString(String.format(
                             "%s[0].%s[0]", Constant.CONN_MARK, Key.TABLE));
 
-                    List<String> allColumns = DBUtil.getTableColumns(
-                            DATABASE_TYPE, jdbcUrl, username, password,
-                            tableName);
+                    // List<String> allColumns = DBUtil.getTableColumns(
+                    //         DATABASE_TYPE, jdbcUrl, username, password,
+                    //         tableName);
+                    List<String> allColumns = userConfiguredColumns;
                     LOG.info("table:[{}] has columns:[{}].",
                             tableName, StringUtils.join(allColumns, ","));
                     // warn:注意mysql表名区分大小写
