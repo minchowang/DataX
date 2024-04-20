@@ -200,7 +200,8 @@ public final class ReaderSplitUtil {
 
                 //最终切分份数不一定等于 eachTableShouldSplittedNumber
                 boolean needSplitTable = eachTableShouldSplittedNumber > 1
-                        && StringUtils.isNotBlank(splitPk);
+                        && StringUtils.isNotBlank(splitPk)
+                        && tables.size() < 1024;
                 if (needSplitTable) {
                     if (tables.size() == 1) {
                         //原来:如果是单表的，主键切分num=num*2+1
