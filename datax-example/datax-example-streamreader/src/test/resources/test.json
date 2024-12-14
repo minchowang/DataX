@@ -1,0 +1,56 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "mysqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "4VPfjOw3I@BSuGzKgmu48OAgK",
+            "column": ["\"id\"","\"company_id\"","\"store_id\"","\"msku\"","\"referral_fee\"","\"fba_fee\"","\"landed_price\"","\"listing_price\"","\"regular_price\"","\"points\"","\"shipping\"","\"referral_fee_currency_code\"","\"fba_fee_currency_code\"","\"landed_price_currency_code\"","\"listing_price_currency_code\"","\"regular_price_currency_code\"","\"shipping_currency_code\"","\"last_get_my_price_for_sku_interface_time\"","\"last_get_my_fees_estimate_for_sku_interface_time\"","\"is_delete\"","\"gmt_create\"","\"gmt_modified\""],
+            "splitPk": "\"id\"",
+            "splitFactor": 5,
+            "session": [],
+            "where": " ",
+            "connection": [
+              {
+                "table": [
+                  "pb_mp_amazon_listing.product_amazon_price_130"
+                ],
+                "jdbcUrl": [
+                  "jdbc:mysql://10.50.2.75:3306/pb_mp_amazon_listing"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "starrockswriter",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "Dortc@Msd#0xrSsrd3@jaBi",
+            "database": "bi_q308gih6dg7c551r2n5y",
+            "table": "product_amazon_price",
+            "column": ["\"id\"","\"company_id\"","\"store_id\"","\"msku\"","\"referral_fee\"","\"fba_fee\"","\"landed_price\"","\"listing_price\"","\"regular_price\"","\"points\"","\"shipping\"","\"referral_fee_currency_code\"","\"fba_fee_currency_code\"","\"landed_price_currency_code\"","\"listing_price_currency_code\"","\"regular_price_currency_code\"","\"shipping_currency_code\"","\"last_get_my_price_for_sku_interface_time\"","\"last_get_my_fees_estimate_for_sku_interface_time\"","\"is_delete\"","\"gmt_create\"","\"gmt_modified\""],
+            "jdbcUrl": "jdbc:mysql://10.50.36.110:9030",
+            "loadUrl": [
+              "10.50.36.110:8030"
+            ],
+            "loadProps": {
+              "format": "csv",
+              "column_separator": "\\x01",
+              "row_delimiter": "\\X02"
+            },
+            "maxBatchRows": "500000",
+            "maxBatchSize": "104857600"
+          }
+        }
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 1
+      }
+    }
+  }
+}

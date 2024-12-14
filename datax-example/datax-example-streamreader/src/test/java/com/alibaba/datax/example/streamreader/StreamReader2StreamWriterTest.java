@@ -47,4 +47,18 @@ public class StreamReader2StreamWriterTest {
         String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
         ExampleContainer.start(jobPath);
     }
+
+    @Test
+    public void testOrderPGReader2StreamWriter() {
+        String path = "/orderpg2sr.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
+
+    @Test
+    public void test() {
+        String path = "/test.json";
+        String jobPath = PathUtil.getAbsolutePathFromClassPath(path);
+        ExampleContainer.start(jobPath);
+    }
 }

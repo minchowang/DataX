@@ -1,0 +1,66 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "postgresqlreader",
+          "parameter": {
+            "username": "bigdata_user",
+            "password": "kqtYunt5yV4ASJyHag@0VZniA",
+            "column": ["*"],
+            "connection": [
+              {
+                "table": [
+                  "order_amzod.(fba_outbound_order)_\\d+$"
+                ],
+                "jdbcUrl": [
+                  "jdbc:postgresql://10.49.18.160:5432/order"
+                ]
+              }
+            ]
+          }
+        },
+        "writer": {
+          "name": "starrockswriter",
+          "parameter": {
+            "username": "erp_user",
+            "password": "Doris@rMo6pG8xHe6erpOICvu",
+            "database": "yy_advertisement_sr_test",
+            "table": "*",
+            "column": ["*"],
+            "jdbcUrl": "jdbc:mysql://10.49.26.33:9030",
+            "loadUrl": [
+              "10.49.26.33:8030"
+            ],
+            "loadProps": {
+              "format": "csv",
+              "column_separator": "\\\\x01",
+              "row_delimiter": "\\\\x02"
+            },
+
+            "maxBatchRows": "500000",
+            "maxBatchSize": "104857600"
+          }
+        },
+        "transformer": [{
+          "name": "dx_groovy",
+          "parameter":
+          {
+            "code": "Map<String, String> meta = record.getMeta(); String tableName = meta.get(\"tableName\");  String newTableName = tableName.replaceAll(\"_\\\\d+\\$\", \"\");meta.put(\"tableName\", newTableName);  return record;",
+            "extraPackage":[
+              "import java.util.Map;"
+            ]
+          }
+        }
+        ]
+      }
+    ],
+    "setting": {
+      "speed": {
+        "channel": 2
+      }
+    }
+  }
+}
+
+
